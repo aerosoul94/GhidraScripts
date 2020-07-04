@@ -12,6 +12,7 @@ from ghidra.program.model.data import BadDataType
 
 from ghidra.program.model.data import AbstractDataType
 from ghidra.program.model.data import FloatDataType
+from ghidra.program.model.data import Float16DataType
 from ghidra.program.model.data import CharDataType
 from ghidra.program.model.data import ShortDataType
 from ghidra.program.model.data import LongDataType
@@ -374,7 +375,7 @@ class GhidraCastXMLLoader:
             if int(element.attrib['abstract']) == 1:
                 # TODO: generate vtable structure
                 pointerLength = self.getDefaultPointerSize()
-                pointerType = PointerDataType(VoidDataType(), pointerLength)
+                pointerType = PointerDataType(VoidDataType.dataType, pointerLength)
                 structureDataType.replaceAtOffset(0, pointerType, pointerType.getLength(), "vtable", hex(0))
         
         # Add each field
@@ -656,18 +657,18 @@ class GhidraCastXMLLoader:
         """
         if isUnsigned == True:
             if size == 16:
-                return UnsignedShortDataType()
+                return UnsignedShortDataType.dataType
             elif size == 32:
-                return UnsignedIntegerDataType()
+                return UnsignedIntegerDataType.dataType
             elif size == 128:
-                return UnsignedInteger16DataType()
+                return UnsignedInteger16DataType.dataType
         else:
             if size == 16:
-                return ShortDataType()
+                return ShortDataType.dataType
             elif size == 32:
-                return IntegerDataType()
+                return IntegerDataType.dataType
             elif size == 128:
-                return Integer16DataType()
+                return Integer16DataType.dataType
             
         return None
         
@@ -685,14 +686,14 @@ class GhidraCastXMLLoader:
         """
         if isUnsigned == True:
             if size == 32:
-                return UnsignedLongDataType()
+                return UnsignedLongDataType.dataType
             elif size == 64:
-                return UnsignedLongLongDataType()
+                return UnsignedLongLongDataType.dataType
         else:
             if size == 32:
-                return LongDataType()
+                return LongDataType.dataType
             elif size == 64:
-                return LongLongDataType()
+                return LongLongDataType.dataType
             
         return None
     
@@ -712,21 +713,21 @@ class GhidraCastXMLLoader:
             # add type to fundamentalTypes
             fundamentalType = None
             if typeName == "void":
-                fundamentalType = VoidDataType()
+                fundamentalType = VoidDataType.dataType
             elif typeName == "bool":
-                fundamentalType = BooleanDataType()
+                fundamentalType = BooleanDataType.dataType
             elif typeName == "char":
-                fundamentalType = CharDataType()
+                fundamentalType = CharDataType.dataType
             elif typeName == "signed char":
-                fundamentalType = SignedCharDataType()
+                fundamentalType = SignedCharDataType.dataType
             elif typeName == "unsigned char":
-                fundamentalType = UnsignedCharDataType()
+                fundamentalType = UnsignedCharDataType.dataType
             elif typeName == "wchar_t":
-                fundamentalType = WideCharDataType()
+                fundamentalType = WideCharDataType.dataType
             elif typeName == "char16_t":
-                fundamentalType = WideChar16DataType()
+                fundamentalType = WideChar16DataType.dataType
             elif typeName == "char32_t":
-                fundamentalType = WideChar32DataType()
+                fundamentalType = WideChar32DataType.dataType
             elif typeName in ("long int", "long long int",):
                 fundamentalType = self.getLongType(False, typeSize)
             elif typeName in ("long unsigned int",  "long long unsigned int"):
@@ -736,13 +737,15 @@ class GhidraCastXMLLoader:
             elif typeName in ("short unsigned int", "unsigned int", "unsigned __int128"):
                 fundamentalType = self.getIntType(True, typeSize)
             elif typeName == "float":
-                fundamentalType = FloatDataType()
+                fundamentalType = FloatDataType.dataType
+            elif typeName == "__float128":
+                fundamentalType = Float16DataType.dataType
             elif typeName == "double":
-                fundamentalType = DoubleDataType()
+                fundamentalType = DoubleDataType.dataType
             elif typeName == "long double":
-                fundamentalType = LongDoubleDataType()
+                fundamentalType = LongDoubleDataType.dataType
             elif typeName == "decltype(nullptr)":
-                fundamentalType = PointerDataType()
+                fundamentalType = PointerDataType.dataType
             else:
                 raise Exception("Unhandled fundamental type: " + typeName)
                 
@@ -826,6 +829,3 @@ if __name__ == "__main__":
     inputXML = askFile("Input XML File", "Open").getAbsolutePath();
     outputGDT = askFile("Output GDT File", "Save").getAbsolutePath();
     doLoad(inputXML, outputGDT)
-    
-
-        
