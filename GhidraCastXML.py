@@ -295,7 +295,7 @@ class GhidraCastXMLLoader:
         print("Enum: {0}".format(enumName))
             
         enumBitSize = int(element.attrib['size'])
-        enumByteSize = enumBitSize / 8
+        enumByteSize = enumBitSize // 8
                 
         filePath = self.getFileFromId(element.attrib['file'])
         categoryPath = self.getCategoryPathFromFile(filePath)
@@ -337,11 +337,11 @@ class GhidraCastXMLLoader:
         structByteSize = 0
         if 'size' in element.attrib:
             structBitSize = int(element.attrib['size'])
-            structByteSize = structBitSize / 8
+            structByteSize = structBitSize // 8
             
         structAlign = 0
         if 'align' in element.attrib:
-            structAlign = int(element.attrib['align']) / 8
+            structAlign = int(element.attrib['align']) // 8
             
         filePath = self.getFileFromId(element.attrib['file'])
         categoryPath = self.getCategoryPathFromFile(filePath)
@@ -359,7 +359,7 @@ class GhidraCastXMLLoader:
         
         # Load all base classes
         if 'bases' in element.attrib:
-            baseElements = element.getchildren()
+            baseElements = list(element)
             for i, baseElement in enumerate(baseElements):
                 baseTypeElement = self.getTypeInfoElementById(baseElement.attrib['type'])
                 baseType = self.getDataType(baseTypeElement)
@@ -392,7 +392,7 @@ class GhidraCastXMLLoader:
                 typeElement = self.getTypeInfoElementById(fieldElement.attrib['type'])
                     
                 fieldName = fieldElement.attrib['name']
-                fieldOffset = int(fieldElement.attrib['offset']) / 8
+                fieldOffset = int(fieldElement.attrib['offset']) // 8
                 if fieldOffset >= structByteSize:
                     continue
                 
@@ -412,26 +412,26 @@ class GhidraCastXMLLoader:
                             # Store first bitfield byteOffset
                             bitFieldOffset = fieldOffset * 8
                             
-                        byteWidth = structureDataType.getLength() - (bitFieldOffset / 8) #fieldDataType.getLength()
+                        byteWidth = structureDataType.getLength() - (bitFieldOffset // 8) #fieldDataType.getLength()
                         bitFieldTotalSize = byteWidth * 8
                         
                         bitOffset = int(fieldElement.attrib['offset']) - bitFieldOffset
                         bitSize = int(fieldElement.attrib['bits'])
                         
                         try:
-                            structureDataType.insertBitFieldAt(bitFieldOffset / 8, byteWidth, bitOffset, fieldDataType, bitSize, fieldName, hex(bitOffset) + " bits")
+                            structureDataType.insertBitFieldAt(bitFieldOffset // 8, byteWidth, bitOffset, fieldDataType, bitSize, fieldName, hex(bitOffset) + " bits")
                         except JavaException as e:
-                            print structName + " -> " + fieldName
-                            print "Current bitfield range: " + str(bitOffset) + " - " + str(bitOffset + bitSize)
-                            print "bitFieldOffset: " + str(bitFieldOffset)
-                            print "bitFieldTotalSize: " + str(bitFieldTotalSize)
-                            print "bitFieldDataType: " + str(fieldDataType)
-                            print "bitFieldDataTypeSize: " + str(fieldDataType.getLength())
-                            print "byteOffset: " + str(byteOffset)
-                            print "byteWidth: " + str(byteWidth)
-                            print "bitOffset: " + str(bitOffset)
-                            print "bitSize: " + str(bitSize)
-                            print e
+                            print(structName + " -> " + fieldName)
+                            print("Current bitfield range: " + str(bitOffset) + " - " + str(bitOffset + bitSize))
+                            print("bitFieldOffset: " + str(bitFieldOffset))
+                            print("bitFieldTotalSize: " + str(bitFieldTotalSize))
+                            print("bitFieldDataType: " + str(fieldDataType))
+                            print("bitFieldDataTypeSize: " + str(fieldDataType.getLength()))
+                            print("byteOffset: " + str(byteOffset))
+                            print("byteWidth: " + str(byteWidth))
+                            print("bitOffset: " + str(bitOffset))
+                            print("bitSize: " + str(bitSize))
+                            print(e)
                         
                         if (bitOffset + bitSize) >= bitFieldTotalSize:
                             # This should be the last bitfield
@@ -463,11 +463,11 @@ class GhidraCastXMLLoader:
         unionByteSize = 0
         if 'size' in element.attrib:
             unionBitSize = int(element.attrib['size'])
-            unionByteSize = unionBitSize / 8
+            unionByteSize = unionBitSize // 8
             
         unionAlign = 0
         if 'align' in element.attrib:
-            unionAlign = int(element.attrib['align']) / 8
+            unionAlign = int(element.attrib['align']) // 8
             
         filePath = self.getFileFromId(element.attrib['file'])
         categoryPath = self.getCategoryPathFromFile(filePath)
@@ -487,7 +487,7 @@ class GhidraCastXMLLoader:
                 fieldElement = self.getTypeInfoElementById(memberElement.attrib['type'])
                 fieldName = memberElement.attrib['name']
                 fieldDataType = self.getDataType(fieldElement)
-                fieldOffset = int(memberElement.attrib['offset']) / 8
+                fieldOffset = int(memberElement.attrib['offset']) // 8
                 
                 unionDataType.add(fieldDataType, fieldName, hex(fieldOffset))
             
@@ -528,7 +528,7 @@ class GhidraCastXMLLoader:
         functionType.setReturnType(returnType)
         
         parms = []
-        argumentElements = element.getchildren()
+        argumentElements = list(element)
         for i, argumentElement in enumerate(argumentElements):
             if argumentElement.tag == "Argument":
                 argumentName = ""
@@ -573,7 +573,7 @@ class GhidraCastXMLLoader:
         if underlyingDataType == None:
             # Since we failed to retrieve a valid type, we will default to Undefined.
             underlyingDataType = Undefined.getUndefinedDataType(1)
-            print "Invalid DataType returned for Typedef: tag={0} id={1}".format(underlyingTypeElement.tag, underlyingTypeElement.attrib['id'])
+            print("Invalid DataType returned for Typedef: tag={0} id={1}".format(underlyingTypeElement.tag, underlyingTypeElement.attrib['id']))
             
         filePath = self.getFileFromId(element.attrib['file'])
         categoryPath = self.getCategoryPathFromFile(filePath)
@@ -598,10 +598,10 @@ class GhidraCastXMLLoader:
         dataType = self.getDataType(pointeeElement)
         if dataType == None:
             dataType = Undefined.getUndefinedDataType(1)
-            print "Invalid DataType returned for PointerType: tag={0} id={1}".format(pointeeElement.tag, pointeeElement.attrib['id'])
+            print("Invalid DataType returned for PointerType: tag={0} id={1}".format(pointeeElement.tag, pointeeElement.attrib['id']))
         pointerLength = self.getDefaultPointerSize()
         if 'size' in element.attrib:
-            pointerLength = int(element.attrib['size']) / 8
+            pointerLength = int(element.attrib['size']) // 8
         pointerType = PointerDataType(dataType, pointerLength)
         
         self.recordTypeForId(element.attrib['id'], pointerType)
@@ -621,7 +621,7 @@ class GhidraCastXMLLoader:
         arrayTypeElement = self.getTypeInfoElementById(element.attrib['type'])
         dataType = self.getDataType(arrayTypeElement)
         if dataType == None:
-            print arrayTypeElement.tag
+            print(arrayTypeElement.tag)
         
         maxIndex = minIndex = 0
         if element.attrib['max'] != "":
@@ -746,6 +746,8 @@ class GhidraCastXMLLoader:
                 fundamentalType = LongDoubleDataType.dataType
             elif typeName == "decltype(nullptr)":
                 fundamentalType = PointerDataType.dataType
+            elif typeName == "_Bool":
+                fundamentalType = BooleanDataType.dataType
             else:
                 raise Exception("Unhandled fundamental type: " + typeName)
                 
@@ -800,7 +802,7 @@ class GhidraCastXMLLoader:
             println("WARN: Returning UndefinedDataType instead.")
             dataType = Undefined.getUndefinedDataType(1)
         else:
-            print "Encountered unhandled tag: {0}".format(element.tag)
+            print("Encountered unhandled tag: {0}".format(element.tag))
         
         return dataType
     
